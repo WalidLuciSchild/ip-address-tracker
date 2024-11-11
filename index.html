@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="styles.css">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+     crossorigin=""/>
+
+     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+     integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+     crossorigin=""></script>
+
+</head>
+<body>
+    <div class="background-container">
+        <div class="background">
+            <div class="purple"></div>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    
+        <div id="informations-container">
+        <p id="ip_text">IP ADRESSE TRACKER</p>
+        <div id="search_container">
+        <input id="search_input" type="text" placeholder="Search for any Ip adress or Domain">
+        <button id="search-button">></button>
+    </div>
+    
+
+    <div id="info-results-container">
+        <div id="ip-adress">
+            <p>IP ADDRESS</p>
+            <span id="ip-value">123.323.545.434</span>
+        </div>
+    
+        <div class="vertical-line"></div>
+    
+        <div id="location">
+            <p>LOCATION</p>
+            <span id="location-value">ESTIN</span>
+        </div>
+    
+        <div class="vertical-line"></div>
+    
+        <div id="time">
+            <p>TIMEZONE</p>
+            <span id="timezone-value">UTC -5:00</span>
+        </div>
+    
+        <div class="vertical-line"></div>
+    
+        <div id="isp">
+            <p>ISP</p>
+            <span id="isp-value">SPACEX</span>
+        </div>
+    </div>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    <script>
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+async function getIPGeolocation(ip) {
+    const apiKey = "at_PRfFaTKGP5oSfleIe57UCEXdYCLI3";
+    const url = `https://geo.ipify.org/api/v2/country,city?apiKey=at_PRfFaTKGP5oSfleIe57UCEXdYCLI3&ipAddress=${ip}`;
+    
+    try {
+        const response = await fetch( url);
+        const data = await response.json();
+        console.log(data)
+
+        document.getElementById('ip-value').textContent = data.ip || 'N/A';
+        document.getElementById('location-value').textContent = `${data.location.city}, ${data.location.country}` || 'N/A';
+        document.getElementById('timezone-value').textContent = data.location.timezone || 'N/A';
+        document.getElementById('isp-value').textContent = data.isp || 'N/A';
+
+        if (data.location.lat && data.location.lng) {
+                map.setView([data.location.lat, data.location.lng], 13);
+                L.marker([data.location.lat, data.location.lng]).addTo(map)
+                    .bindPopup(`Location: ${data.location.city}, ${data.location.country}`)
+                    .openPopup();
+            }
+        } catch (error) {
+            console.log('Error fetching IP geolocation data:', error);
+        }
+    }
+
+
+
+    
+        document.getElementById('search-button').addEventListener('click', () => {
+            const ip = document.getElementById('search_input').value;
+            getIPGeolocation(ip);
+        });
+        getIPGeolocation();
+
+    </script>
+</body>
+</html>
